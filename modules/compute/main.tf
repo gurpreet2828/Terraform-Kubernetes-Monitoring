@@ -20,7 +20,8 @@ resource "aws_key_pair" "aws-key" {
 #Create K8s Master
 #====================
 resource "aws_instance" "k8s-master" {
-  instance_type               = "t2.micro"
+  #instance_type               = "t2.medium"
+  instance_type = var.instance_type
   ami                         = data.aws_ssm_parameter.webserver-ami.value
   tags = {
   Name = "k8s_master_tf"
@@ -35,7 +36,7 @@ resource "aws_instance" "k8s-master" {
 #====================
 resource "aws_instance" "k8s-nodes" {
   count = 2
-  instance_type               = "t2.micro"
+  instance_type               = "t2.medium"
   ami                         = data.aws_ssm_parameter.webserver-ami.value
   tags = {
     Name = "k8s_node_${count.index}"
