@@ -1,1 +1,5 @@
+adminUser: admin
 adminPassword: YUDevOps
+service:
+  type: NodePort
+  port: 3000
