@@ -75,9 +75,10 @@ This report outlines the process of monitoring a Kubernetes cluster using Promet
 
 - Destroy the provisioned infrastructure using the terraform destroy command to prevent unnecessary costs
 
-## **Step 1: Transfer Files from Windows to Linux Machine** {#step-1-transfer-files-from-windows-to-linux-machine .unnumbered}
+## **Step 1: Transfer Files from Windows to Linux Machine**
 
-Use `scp` to transfer your Terraform and Docker files from your local machine to your Ubuntu instance.  
+Use `scp` to transfer your Terraform and Docker files from your local machine to your Ubuntu instance.
+
 **Note:** Run the following command in Command Prompt (CMD) to copy the Terraform and Kubernetes code to your Linux machine:
 
 ```shell
@@ -205,541 +206,520 @@ If your AWS CLI is properly configured, you\'ll see a response like this:
 
 ![Image9](https://github.com/gurpreet2828/Terraform-Kubernetes/blob/9bc9affe2c6baf0846cd729b516f49e255c59c1e/Images/Image9.png)
 
+## **Assigning Elastic IP to EC2-Instance**
+
+To maintain a consistent public IP address for an EC2 instance after stopping and restarting, an Elastic IP must be associated with the instance. This ensures that the public IP remains unchanged, preventing disruptions in connectivity or configuration dependencies that rely on a stable IP address
+
+### **Steps to Assign an Elastic IP to an EC2 Instance in AWS Console:**
+
+#### 1.  **Navigate to the EC2 Dashboard:**
+
+- Open the [AWS Management Console](https://console.aws.amazon.com/).
+- In the **Services** menu, select **EC2**.
+
+#### 2.  **Allocate an Elastic IP Address:**
+
+- In the left navigation pane, click **Elastic IPs** under **Network & Security**.
+- Click **Allocate Elastic IP address**.
+- Choose the scope (**VPC**) and click **Allocate**.
+- Note down the newly allocated Elastic IP address.
+
+#### 3.  **Associate Elastic IP with EC2 Instance:**
+
+- Select the allocated Elastic IP.
+- Click **Actions** → **Associate Elastic IP address**.
+- In the **Resource type** dropdown, select **Instance**.
+- Select the desired EC2 instance from the list.
+- Choose the **Private IP address** to which the Elastic IP will be associated (if the instance has multiple private IPs).
+- Click **Associate**.
+
+#### 4.  **Verify the Association:**
+
+- Go to **Instances** in the EC2 dashboard.
+- Select the instance and confirm that the **Public IPv4 address** matches the allocated Elastic IP.
+
+![Image20](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image20.png)
+
 ## **Step 4: Provisioning AWS Infrastructure using Terraform**
 
-1.  Terraform init
+### 1.  `Terraform init`
 
-- prepares your environment and configures everything Terraform needs to
-  interact with your infrastructure.
+- prepares your environment and configures everything Terraform needs to interact with your infrastructure.
 
-![A screenshot of a computer program AI-generated content may be
-incorrect.](media/image9.png){width="7.5in"
-height="4.134722222222222in"}
+![Image5](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image5.png)
 
-2.  terraform fmt
+### 2.  `terraform fmt`
 
-- used to **automatically format** your Terraform configuration files to
-  a standard style. It ensures that your code is consistently formatted,
-  making it easier to read and maintain.
+- used to **automatically format** your Terraform configuration files to a standard style. It ensures that your code is consistently formatted, making it easier to read and maintain.
 
-3.  Terraform validate
+### 3.  `Terraform validate`
 
-- used to **check the syntax and validity** of your Terraform
-  configuration files. It helps you catch errors in the configuration
-  before you attempt to run other Terraform commands, like terraform
-  plan or terraform apply.
+- used to **check the syntax and validity** of your Terraform configuration files. It helps you catch errors in the configuration before you attempt to run other Terraform commands, like terraform plan or terraform apply.
 
-![](media/image10.png){width="7.5in" height="0.5861111111111111in"}
+![Image6](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image6.png)
 
-4.  terraform plan
+### 4.  `terraform plan`
 
-- used to **preview the changes** Terraform will make to your
-  infrastructure based on the current configuration and the existing
-  state. It shows what actions will be taken (such as creating,
-  modifying, or deleting resources) when you apply the configuration
+- used to **preview the changes** Terraform will make to your infrastructure based on the current configuration and the existing state. It shows what actions will be taken (such as creating, modifying, or deleting resources) when you apply the configuration
 
-- Before running terraform apply to check exactly what changes Terraform
-  will make.
+- Before running terraform apply to check exactly what changes Terraform will make.
 
-> ***Before Running Terraform Plan must update the location of public
-> and private ssh keys under modules -compute - variables.tf***
->
-> ***As shown in following image***
+***Before Running Terraform Plan must update the location of public and private ssh keys under modules -compute - variables.tf***
 
-![A screen shot of a computer AI-generated content may be
-incorrect.](media/image11.png){width="7.5in" height="4.21875in"}
+**As shown in following image:**
 
-**After applying the Terraform plan, you will see the following
-output:**
+![Image7](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image7.png)
 
-![A computer screen shot of a computer screen AI-generated content may
-be incorrect.](media/image12.png){width="7.5in" height="4.21875in"}
+**After applying the Terraform plan, you will see the following output:**
 
-**5:** Terraform apply
+![Image8](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image8.png)
 
-Provision terraform managed infrastructure. You must confirm by trying
-**yes** if you would like to continue and perform the actions described
-to provision your infrastructure resources
+## 5:  'Terraform apply'
 
-After successfully applying the Terraform configuration, you will see
-the public IP addresses assigned to your Kubernetes master and node
-instances as output.
+Provision terraform managed infrastructure. You must confirm by trying **yes** if you would like to continue and perform the actions described to provision your infrastructure resources
 
-![A computer screen shot of a computer screen AI-generated content may
-be incorrect.](media/image13.png){width="7.5in" height="3.625in"}
+After successfully applying the Terraform configuration, you will see the public IP addresses assigned to your Kubernetes master and node instances as output.
 
-**k8s-master-Public-IP**: The public IP address assigned to the
-Kubernetes master node.
+![Image9](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image9.png)
 
-**k8s-node-Public-IP**: A list of public IP addresses assigned to the
-Kubernetes worker nodes.
+**k8s-master-Public-IP**: The public IP address assigned to the Kubernetes master node.
 
-**You can log in to your AWS account to view the infrastructure
-resources that have been provisioned.**
+**k8s-node-Public-IP**: A list of public IP addresses assigned to the Kubernetes worker nodes.
 
-![A screenshot of a computer AI-generated content may be
-incorrect.](media/image14.png){width="7.5in" height="4.21875in"}
+**You can log in to your AWS account to view the infrastructure resources that have been provisioned.**
 
-##  {#section .unnumbered}
+![Image10](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image10.png)
 
-## **Step 5: Connect to K8s Master (Control Plane) Node**  {#step-5-connect-to-k8s-master-control-plane-node .unnumbered}
+## **Step 5: Connect to K8s Master (Control Plane) Node**
 
-Using the public IP address provided in the Terraform output, connect to
-the EC2 instance by executing the following command in your terminal:
+Using the public IP address provided in the Terraform output, connect to the EC2 instance by executing the following command in your terminal:
 
+```shell
 ssh -i /root/.ssh/docker ec2-user@54.227.118.240
+```
 
-![A screenshot of a computer screen AI-generated content may be
-incorrect.](media/image15.png){width="7.5in"
-height="3.558333333333333in"}
+![Image11](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image11.png)
 
-## **Step 6: Install and Configure Kubernetes Master (Control Plane) Node** {#step-6-install-and-configure-kubernetes-master-control-plane-node .unnumbered}
+## **Step 6: Install and Configure Kubernetes Master (Control Plane) Node**
 
-**Follow these steps to set up the Kubernetes Control Plane node
-effectively:**
+### **Follow these steps to set up the Kubernetes Control Plane node effectively:**
 
-**Update the System and Install Dependencies**
+#### **Update the System and Install Dependencies**
 
-Run the following commands to update the system and install essential
-packages:
+Run the following commands to update the system and install essential packages:
 
+```shell
 sudo yum update -y
+```
 
+```shell
 sudo yum install -y curl wget git
+```
 
-**Disable Swap**
+#### **Disable Swap**
 
-Kubernetes disables swap to prevent unpredictable latency and ensure
-consistent memory management across nodes. Swapping can bypass
-Kubernetes\' memory limits, leading to instability and performance
-degradation.
+Kubernetes disables swap to prevent unpredictable latency and ensure consistent memory management across nodes. Swapping can bypass Kubernete's memory limits, leading to instability and performance degradation.
 
 Kubernetes requires swap to be disabled. Execute:
 
+```shell
 sudo swapoff -a
 
 sudo sed -i \'/ swap / s/\^\\.\*\\\$/#\1/g\' /etc/fstab
+```
 
 verify swap is disable
 
+```bash
 free -h
+```
 
-![](media/image16.png){width="7.5in" height="0.8381944444444445in"}
+![Image12](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image12.png)
 
 swapon --show
 
 **Note:** If swap is disabled, this command will produce no output.
 
-**Load Modules for containerd:**
+### **Load Modules for containerd:**
 
-Following commands are used to **load kernel modules** necessary for
-container networking and filesystem overlay in a containerized
-environment like **containerd** or **Kubernetes**.
+Following commands are used to **load kernel modules** necessary for container networking and filesystem overlay in a containerized environment like **containerd** or **Kubernetes**.
 
 Run the following commands
 
-**sudo modprobe overlay**
+```bash
+sudo modprobe overlay
+```
 
-\# Enables the overlay filesystem, which allows container runtimes to
-layer filesystems efficiently.
+\# Enables the overlay filesystem, which allows container runtimes to layer filesystems efficiently.
 
-**sudo modprobe br_netfilter**
+```bash
+sudo modprobe br_netfilter
+```
 
-\# Enables bridging between containers for networking, essential for
-Kubernetes networking components like kube-proxy.
+\# Enables bridging between containers for networking, essential for Kubernetes networking components like kube-proxy.
 
-**Set Up sysctl Parameters for Kubernetes Networking**
+### **Set Up sysctl Parameters for Kubernetes Networking**
 
-cat \<\<EOF \| sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
-
+```shell
+cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
 net.bridge.bridge-nf-call-iptables = 1
-
 net.ipv4.ip_forward = 1
-
 net.bridge.bridge-nf-call-ip6tables = 1
-
 EOF
+```
 
-**Apply changes by running the following command**
+### **Apply changes by running the following command**
 
-sudo sysctl \--system
+```shell
+sudo sysctl --system
+```
 
-![A screen shot of a computer screen AI-generated content may be
-incorrect.](media/image17.png){width="7.5in" height="4.21875in"}
+![Image13](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image13.png)
 
-**Verify Modules:**
+### **Verify Modules:**
 
 Verify that the modules are loaded, by running the following command
 
-lsmod \| grep overlay
+```shell
+lsmod | grep overlay
 
-lsmod \| grep br_netfilter
+lsmod | grep br_netfilter
+```
 
-![A screen shot of a computer code AI-generated content may be
-incorrect.](media/image18.png){width="6.233333333333333in"
-height="1.2583333333333333in"}
+![Image14](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image14.png)
 
-**Download and Install the Latest cri-tools RPM:**
+### **Download and Install the Latest cri-tools RPM:**
 
+```shell
 cd \~
+```
 
-curl -LO
-https://download.opensuse.org/repositories/isv:/kubernetes:/core:/stable:/v1.30/rpm/x86_64/cri-tools-1.30.0-150500.1.1.x86_64.rpm
+```bash
+curl -LO https://download.opensuse.org/repositories/isv:/kubernetes:/core:/stable:/v1.30/rpm/x86_64/cri-tools-1.30.0-150500.1.1.x86_64.rpm
+```
 
+```bash
 sudo yum localinstall -y cri-tools-1.30.0-150500.1.1.x86_64.rpm
-
 sudo sysctl ---system
+crictl --version
+```
 
-crictl \--version
+![Image15](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image15.png)
 
-![A screen shot of a computer AI-generated content may be
-incorrect.](media/image19.png){width="7.5in" height="4.21875in"}
+### **Install containerd**
 
-**Install containerd**
+#### **Update the system:**
 
-**Update the system:**
-
+```shell
 sudo yum update -y
+```
 
-**Install containerd:**
+#### **Install containerd:**
 
+```shell
 sudo yum install -y containerd
+```
 
-![A computer screen with white text AI-generated content may be
-incorrect.](media/image20.png){width="7.5in"
-height="3.7583333333333333in"}
+![Image16](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image16.png)
 
-**Create the configuration directory:**
+### **Create the configuration directory:**
 
+```shell
 sudo mkdir -p /etc/containerd
+```
 
-**Generate containerd configuration:**
+### **Generate containerd configuration:**
 
-containerd config default \| sudo tee /etc/containerd/config.toml
+```shell
+containerd config default | sudo tee /etc/containerd/config.toml
+```
 
-![A computer screen shot of a black screen AI-generated content may be
-incorrect.](media/image21.png){width="7.5in" height="4.21875in"}
+![Image17](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image17.png)
 
-**Enable Conatinerd**
+### **Enable Conatinerd**
 
+```shell
 sudo systemctl enable containerd \--now
+```
 
-**Restart containerd:**
+### **Restart containerd:**
 
+```shell
 sudo systemctl restart containerd
+```
 
-**Verify containerd status:**
+### **Verify containerd status:**
 
+```shell
 sudo systemctl status containerd
+```
 
-**Verify Version**
+### **Verify Version**
 
-containerd \--version
+```shell
+containerd --version
+```
 
-![A computer screen with many text AI-generated content may be
-incorrect.](media/image22.png){width="7.5in" height="4.21875in"}
+![Image18](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image18.png)
 
-**Install Kubernetes Components (kubeadm, kubelet, kubectl**
+## **Install Kubernetes Components (kubeadm, kubelet, kubectl)**
 
-**Add Kubernetes repository:**
+### **Add Kubernetes repository:**
 
-cat \<\<EOF \| sudo tee /etc/yum.repos.d/kubernetes.repo
-
-\[kubernetes\]
-
+```shell
+cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
 name=Kubernetes
-
 baseurl=https://pkgs.k8s.io/core:/stable:/v1.32/rpm/
-
 enabled=1
-
 gpgcheck=1
-
 gpgkey=https://pkgs.k8s.io/core:/stable:/v1.32/rpm/repodata/repomd.xml.key
-
 exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
-
 EOF
+```
 
-![A screen shot of a computer screen AI-generated content may be
-incorrect.](media/image23.png){width="7.5in"
-height="3.183333333333333in"}
+![Image19](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image19.png)
 
-**Set SELinux in Permissive Mode**
+### **Set SELinux in Permissive Mode**
 
+```shell
 sudo setenforce 0
 
-sudo sed -i \'s/\^SELINUX=enforcing\$/SELINUX=permissive/\'
-/etc/selinux/config
+sudo sed -i \'s/\^SELINUX=enforcing\$/SELINUX=permissive/\' /etc/selinux/config
+```
 
-**Install kubeadm, kubelet, and kubectl**
+### **Install kubeadm, kubelet, and kubectl**
 
-sudo yum install -y kubelet kubeadm kubectl
-\--disableexcludes=kubernetes
+```shell
+sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+```
 
-![A computer screen shot of a computer screen AI-generated content may
-be incorrect.](media/image24.png){width="7.5in" height="4.21875in"}
+![Image21](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image21.png)
 
-**Enable and Start kubelet**
+### **Enable and Start kubelet**
 
-sudo systemctl enable \--now kubelet
+```shell
+sudo systemctl enable --now kubelet
+```
 
-![](media/image25.png){width="7.5in" height="0.3888888888888889in"}
+## **Step 7: Initialize the Kubernetes Cluster and Install Calico Network**
 
-## **Step 7: Initialize the Kubernetes Cluster and Install Calico Network** {#step-7-initialize-the-kubernetes-cluster-and-install-calico-network .unnumbered}
+### 1.  **Create Kubeadm Config File:**
 
-1.  **Create Kubeadm Config File:**
-
+```shell
 vi kube-config.yml
+```
 
-**Insert the following content in above yml file**
+#### **Insert the following content in above yml file**
 
+```yml
 apiVersion: kubeadm.k8s.io/v1beta3
-
 kubernetesVersion: 1.32.0
-
-\# This is a configuration file for kubeadm to set up a Kubernetes
-cluster.
-
+# This is a configuration file for kubeadm to set up a Kubernetes cluster.
 kind: ClusterConfiguration
-
 networking:
-
-  podSubnet: 192.168.0.0/16
-
+  podSubnet: 192.168.0.0/16
 apiServer:
+  extraArgs:
+   service-node-port-range: 1024-1233
+```
 
-  extraArgs:
+### 2.  **Initialize Kubernetes Cluster:**
 
-   service-node-port-range: 1024-1233
+```shell
+sudo kubeadm init --config kube-config.yml --ignore-preflight-errors=all
+```
 
-2.  **Initialize Kubernetes Cluster:**
+**Note:** The purpose of --ignore-preflight-errors=all flag is to ignore the K8s HW requirements
 
-sudo kubeadm init \--config kube-config.yml
-\--ignore-preflight-errors=all
+![Image22](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image22.png)
 
-**Note:** The purpose of \--ignore-preflight-errors=all flag is to
-ignore the K8s HW requirements
+### 3.  **Set Up Kubernetes CLI Access:**
 
-![A computer screen with white text on it AI-generated content may be
-incorrect.](media/image26.png){width="7.5in"
-height="3.908333333333333in"}
-
-3.  **Set Up Kubernetes CLI Access:**
-
+```shell
 mkdir -p \$HOME/.kube
-
 sudo cp -i /etc/kubernetes/admin.conf \$HOME/.kube/config
-
 sudo chown \$(id -u):\$(id -g) \$HOME/.kube/config
+```
 
-4.  **Check Node Status:**
+### 4.  **Check Node Status:**
 
+```shell
 kubectl get nodes
+```
 
-![](media/image27.png){width="7.5in" height="0.7430555555555556in"}
+![Image23](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image23.png)
 
-5.  **Install Calico Network Plugin:**
+### 5.  **Install Calico Network Plugin:**
 
-kubectl apply -f <https://docs.projectcalico.org/manifests/calico.yaml>
+```shell
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+```
 
-![A computer screen with many white text AI-generated content may be
-incorrect.](media/image28.png){width="7.5in" height="4.21875in"}
+![Image24](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image24.png)
 
-**Wait a few minutes, then verify the node status:** Run the following
-command
+**Wait a few minutes, then verify the node status:** Run the following command
 
+```shell
 kubectl get nodes
+```
 
-## ![A black screen with white text AI-generated content may be incorrect.](media/image29.png){width="7.5in" height="1.1in"} {#a-black-screen-with-white-text-ai-generated-content-may-be-incorrect. .unnumbered}
+![Image25](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image25.png)
 
-## **Step 8: Connect to K8s Worker Node** {#step-8-connect-to-k8s-worker-node .unnumbered}
+## **Step 8: Connect to K8s Worker Node**
 
-1.  **Connect to Worker Node**
+### 1.  **Connect to Worker Node**
 
-- Use the same steps as the Master node, using the worker node\'s public
-  IP.
+- Use the same steps as the Master node, using the worker node's public IP.
 
-2.  **Install Kubernetes on Worker Node**
+### 2.  **Install Kubernetes on Worker Node**
 
-- Follow the same installation steps as for the Master Node to install
-  containerd, kubeadm, kubelet, and kubectl.
+- Follow the same installation steps as for the Master Node to install containerd, kubeadm, kubelet, and kubectl.
 
-## **Step 9: Join the Work Node to the Kubernetes Cluster**  {#step-9-join-the-work-node-to-the-kubernetes-cluster .unnumbered}
+## **Step 9: Join the Work Node to the Kubernetes Cluster**
 
-**Get Join Command from Master Node**
+### **Get Join Command from Master Node**
 
-- On the master node, generate the join command by running the following
-  command
+- On the master node, generate the join command by running the following command
 
-kubeadm token create \--print-join-command
+```shell
+kubeadm token create --print-join-command
+```
 
 you will see like following
 
-sudo kubeadm join 10.0.1.45:6443 \--token kl3rnb.gj2syfp4bjnri1xu
-\--discovery-token-ca-cert-hash
-sha256:0805a221754221c412c58ee47f3a38e7f2ccd9baaa3b57a3ede5fc8975de3189
-\--ignore-preflight-errors=all
-
-![A screen shot of a computer AI-generated content may be
-incorrect.](media/image30.png){width="7.5in"
-height="3.0416666666666665in"}
-
+```shell
+sudo kubeadm join 10.0.1.45:6443 --token kl3rnb.gj2syfp4bjnri1xu --discovery-token-ca-cert-hash sha256:0805a221754221c412c58ee47f3a38e7f2ccd9baaa3b57a3ede5fc8975de3189 --ignore-preflight-errors=all
+```
 copy the above command and paste to your worker node
 
-In the Master (Control Plane) Node, check the cluster status (It could
-take few moments until the node become ready)
+![Image26](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image26.png)
 
+In the Master (Control Plane) Node, check the cluster status (It could take few moments until the node become ready)
+
+```shell
 kubectl get nodes
+```
 
-![A computer screen shot of a black screen AI-generated content may be
-incorrect.](media/image31.png){width="7.5in"
-height="1.2166666666666666in"}
+![Image28](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image28.png)
 
-##  {#section-1 .unnumbered}
+## **Step 10: Deploy React Application**
 
-## **Step 10: Deploy React Application** {#step-10-deploy-react-application .unnumbered}
+### 1.  **Create React Application YAML (react-app-pod.yml)**
 
-1.  **Create React Application YAML (react-app-pod.yml)**
+#### **Run the following command**
 
-> **Run the following command**
->
-> vi react-app-pod.yml
+```shell
+vi react-app-pod.yml
+```
 
+insert the following `yml` code
+
+```yml
 apiVersion: v1
-
 kind: Service
-
 metadata:
-
-name: react-app
-
+  name: react-app
 spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 1233
+  selector:
+    app: react-app
 
-type: NodePort
-
-ports:
-
-\- port: 80
-
-targetPort: 80
-
-nodePort: 1233
-
-selector:
-
-app: react-app
-
-\-\--
-
+---
 apiVersion: apps/v1
-
 kind: Deployment
-
 metadata:
-
-name: react-app
-
+  name: react-app
 spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: react-app
+  template:
+    metadata:
+      labels:
+        app: react-app
+    spec:
+      containers:
+      - name: react-app
+        image: wessamabdelwahab/react-app:latest   #docker image
+        ports:
+        - containerPort: 80
+```
 
-replicas: 1
+### 2.  **Apply the React App YAML**
 
-selector:
-
-matchLabels:
-
-app: react-app
-
-template:
-
-metadata:
-
-labels:
-
-app: react-app
-
-spec:
-
-containers:
-
-\- name: react-app
-
-image: \<your-docker-hub-image\>
-
-ports:
-
-\- containerPort: 80
-
-2.  **Apply the React App YAML**
-
+```shell
 kubectl create -f react-app-pod.yml
+```
 
-> ![A black screen with white text AI-generated content may be
-> incorrect.](media/image32.png){width="7.5in"
-> height="0.9381944444444444in"}
+![Image27](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image27.png)
 
-3.  **Verify Pods and Services**
+### 3.  **Verify Pods and Services**
 
-> kubectl get pods
->
-> ![A screenshot of a computer AI-generated content may be
-> incorrect.](media/image33.png){width="7.5in"
-> height="1.0819444444444444in"}
->
-> kubectl get services
->
-> ![A black screen with white text AI-generated content may be
-> incorrect.](media/image34.png){width="7.5in"
-> height="0.9722222222222222in"}
+```shell
+kubectl get pods
+```
 
-**Verify that the pod is up and running**
+![Image29](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image29.png)
+
+```shell
+kubectl get services
+```
+
+![Image30](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image30.png)
+
+### **Verify that the pod is up and running**
 
 kubectl get pods -o wide
 
-![](media/image35.png){width="7.5in" height="0.5326388888888889in"}
+![Image31](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image31.png)
 
-**Check communication with react-app pod**
+### **Check communication with react-app pod**
 
 curl \< react-app IP address\>
 
-ex: curl 192.168.206.129
+Example:
 
-![A screen shot of a computer screen AI-generated content may be
-incorrect.](media/image36.png){width="7.5in"
-height="2.2534722222222223in"}
+```shell
+curl 192.168.206.129
+```
 
-**Verify that the deployment complete**
+![Image32](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image32.png)
 
+### **Verify that the deployment complete**
+
+```shell
 kubectl get deployment
+```
 
-![A black screen with white text AI-generated content may be
-incorrect.](media/image37.png){width="7.5in"
-height="1.1847222222222222in"}
+![Image33](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image33.png)
 
-Go to the pubic IP of your Master server, worker node and port 1233
-\<Public IP\>:1233. The sample react application should be running.
+Go to the pubic IP of your Master server, worker node and port 1233 \<Public IP\>:1233. The sample react application should be running.
 
-<http://54.227.118.240:1233/> \-\-- Public IP of master Node
+```shell
+http://54.227.118.240:1233/  #Public IP of master Node
+```
 
-<http://52.204.114.58:1233/> \-\-- Public of Node 1
+```shell
+http://52.204.114.58:1233/  #Public of Node 1 (Worker Node)
+```
 
-<http://54.165.83.46:1233/> \-\-- Public Ip of Node 0
+```shell
+http://54.165.83.46:1233/   #Public Ip of Node 0 (Worker Node)
 
-![A screenshot of a computer AI-generated content may be
-incorrect.](media/image38.png){width="7.5in" height="4.21875in"}
+![Image34](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image34.png)
 
-## **Step 11: Implementing Helm: Installation and Configuration** {#step-11-implementing-helm-installation-and-configuration .unnumbered}
+## **Step 11: Implementing Helm: Installation and Configuration**
 
-- **Helm** is a package manager for Kubernetes that simplifies the
-  deployment, management, and scaling of applications in a Kubernetes
-  cluster.
+- **Helm** is a package manager for Kubernetes that simplifies the deployment, management, and scaling of applications in a Kubernetes cluster.
+- It uses pre-configured application templates called **Charts**, which define the structure and configuration of Kubernetes resources.
 
-- It uses pre-configured application templates called **Charts**, which
-  define the structure and configuration of Kubernetes resources.
-
-###  {#section-2 .unnumbered}
-
-### **Step 1: Download the Helm installation script.** {#step-1-download-the-helm-installation-script. .unnumbered}
+### **Step 1: Download the Helm installation script.**
 
 curl -fsSL -o get_helm.sh
 <https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3>
