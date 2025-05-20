@@ -274,7 +274,7 @@ To maintain a consistent public IP address for an EC2 instance after stopping an
 
 ![Image8](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image8.png)
 
-## 5:  'Terraform apply'
+## 5:  `Terraform apply`
 
 Provision terraform managed infrastructure. You must confirm by trying **yes** if you would like to continue and perform the actions described to provision your infrastructure resources
 
@@ -591,6 +591,7 @@ you will see like following
 ```shell
 sudo kubeadm join 10.0.1.45:6443 --token kl3rnb.gj2syfp4bjnri1xu --discovery-token-ca-cert-hash sha256:0805a221754221c412c58ee47f3a38e7f2ccd9baaa3b57a3ede5fc8975de3189 --ignore-preflight-errors=all
 ```
+
 copy the above command and paste to your worker node
 
 ![Image26](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image26.png)
@@ -711,6 +712,7 @@ http://52.204.114.58:1233/  #Public of Node 1 (Worker Node)
 
 ```shell
 http://54.165.83.46:1233/   #Public Ip of Node 0 (Worker Node)
+```
 
 ![Image34](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/19f1cb1fabf04847c82fa00d32ad17c4ccbabc10/Images/Image34.png)
 
@@ -721,258 +723,239 @@ http://54.165.83.46:1233/   #Public Ip of Node 0 (Worker Node)
 
 ### **Step 1: Download the Helm installation script.**
 
-curl -fsSL -o get_helm.sh
-<https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3>
+```shell
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+```
 
-### **Step 2: Assign execute permissions to the script.** {#step-2-assign-execute-permissions-to-the-script. .unnumbered}
+### **Step 2: Assign execute permissions to the script.**
 
+```shell
 chmod 700 get_helm.sh
+```
 
-### **Step 3: Run the script to install Helm.** {#step-3-run-the-script-to-install-helm. .unnumbered}
+### **Step 3: Run the script to install Helm.**
 
+```shell
 ./get_helm.sh
+```
 
-### **Step 4: Verify the installation.** {#step-4-verify-the-installation. .unnumbered}
+### **Step 4: Verify the installation.**
 
+```shell
 helm version
+```
 
-![](media/image39.png){width="7.5in" height="0.6958333333333333in"}
+![Image35](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image35.png)
 
-### **Step 5: Grant a Role to the Default Service Account** {#step-5-grant-a-role-to-the-default-service-account .unnumbered}
+### **Step 5: Grant a Role to the Default Service Account**
 
-- **What It Does:**
-
-<!-- -->
+**What It Does:**
 
 - Creates a Cluster Role Binding named add-on-cluster-admin.
+- Binds the cluster-admin role to the default service account in the kube-system namespace.
 
-- Binds the cluster-admin role to the default service account in the
-  kube-system namespace.
-
-<!-- -->
-
-- **Why This Step?**
-
-<!-- -->
+**Why This Step?**
 
 - Helm uses Kubernetes service accounts for access control.
+- This command grants the default service account in kube-system full administrative access to the cluster.
 
-- This command grants the default service account in kube-system full
-  administrative access to the cluster.
+**Potential Risks:**
 
-<!-- -->
-
-- **Potential Risks:**
-
-<!-- -->
-
-- Granting cluster-admin access is very permissive and is generally not
-  recommended for production.
-
-- Consider creating a more restrictive role with only the necessary
-  permissions.
+- Granting cluster-admin access is very permissive and is generally not recommended for production.
+- Consider creating a more restrictive role with only the necessary permissions.
 
 Run the following code
 
-kubectl \--namespace=kube-system create clusterrolebinding
-add-on-cluster-admin \\
+```bash
+kubectl --namespace=kube-system create clusterrolebinding add-on-cluster-admin \
+  --clusterrole=cluster-admin \
+  --serviceaccount=kube-system:default
+```
 
-\--clusterrole=cluster-admin \\
+![Image36](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image36.png)
 
-\--serviceaccount=kube-system:default
-
-![](media/image40.png){width="7.5in" height="0.7715277777777778in"}
-
-## **Step12: Prometheus Installation and Configuration** {#step12-prometheus-installation-and-configuration .unnumbered}
+## **Step12: Prometheus Installation and Configuration**
 
 ### **Add the Prometheus Helm Repository and Update**
 
-helm repo add prometheus-community
-https://prometheus-community.github.io/helm-charts
+```shell
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+```
 
+```bash
 helm repo update
+```
 
-![A screen shot of a computer AI-generated content may be
-incorrect.](media/image41.png){width="7.5in"
-height="0.9638888888888889in"}
+![Image37](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image37.png)
 
-### **Create a YAML file (prometheus.yml) to Disable Persistent Volume** {#create-a-yaml-file-prometheus.yml-to-disable-persistent-volume}
+### **Create a YAML file (prometheus.yml) to Disable Persistent Volume**
 
+```shell
 vi prometheus.yml
+```
 
+insert the following `yml` code
+
+```yml
 server:
-
-persistentVolume:
-
-enabled: false
-
+  persistentVolume:
+    enabled: false
 alertmanager:
-
-persistentVolume:
-
-enabled: false
+  persistentVolume:
+    enabled: false
+```
 
 **Why Disable Persistent Volume?**
 
 - In this example, you disable persistence, so Prometheus does not store
   data permanently.
 
-- **Warning:** In a real production environment, disabling persistence
-  means you lose metrics if pods restart or are terminated.
+- **Warning:** In a real production environment, disabling persistence means you lose metrics if pods restart or are terminated.
 
 ### **Install Prometheus with the Custom YAML**
 
-helm install -f prometheus.yml prometheus
-prometheus-community/Prometheus
+helm install -f prometheus.yml prometheus prometheus-community/Prometheus
 
 **What It Does:**
 
 - Installs Prometheus using the Helm chart from the community repo.
 
-- Applies your config from prometheus.yml (with persistence disabled
-  here).
+- Applies your config from prometheus.yml (with persistence disabled here).
 
-![A screen shot of a computer screen AI-generated content may be
-incorrect.](media/image42.png){width="7.5in" height="4.21875in"}
+![Image38](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image38.png)
 
+```shell
 Kubectl get nodes
+```
 
-![A screenshot of a computer screen AI-generated content may be
-incorrect.](media/image43.png){width="7.5in" height="2.25in"}
+![Image39](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image39.png)
 
 ### **Expose Prometheus Using NodePort**
 
-kubectl expose service prometheus-server \--type=NodePort
-\--target-port=9090 \--name=prometheus-server-np
+```shell
+kubectl expose service prometheus-server --type=NodePort --target-port=9090 --name=prometheus-server-np
+```
 
+```shell
 kubectl get svc
+```
 
-![A screen shot of a computer screen AI-generated content may be
-incorrect.](media/image44.png){width="7.5in"
-height="1.6659722222222222in"}
+![Image40](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image40.png)
 
 **What It Does:**
 
-- Creates a Kubernetes service of type NodePort to expose Prometheus
-  outside the cluster.
+- Creates a Kubernetes service of type NodePort to expose Prometheus outside the cluster.
 
 - The Prometheus UI runs on port 9090 inside the cluster.
 
-- kubectl get svc shows the NodePort assigned (random port in the range
-  30000-32767).
+- kubectl get svc shows the NodePort assigned (random port in the range 30000-32767).
 
 **Why NodePort?**
 
-- To access Prometheus UI from your local machine or browser via the
-  node's IP address and assigned port.
+- To access Prometheus UI from your local machine or browser via the node's IP address and assigned port.
 
 ### **Access Prometheus Web UI**
 
 Open a browser and enter Public IP Address of master node or worker node
 
-http://\<Public IP\>:\<NodePort\>
+Format:
 
+http://<Public IP>:<NodePort>
+
+Example:
+
+```shell
 http://54.165.83.46:1213/query
+```
 
 To check NodePort run the following command
 
+```shell
 kubectl get svc
+```
 
-![A screen shot of a computer screen AI-generated content may be
-incorrect.](media/image44.png){width="7.5in"
-height="1.6659722222222222in"}
+![Image40](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image40.png)
 
 ### **Explore Metrics and Queries**
 
-In the Prometheus UI, use the **Expression Browser** to search metrics,
-for example:
+In the Prometheus UI, use the **Expression Browser** to search metrics, for example:
 
 - Search for CPU or Memory metrics.
 
-- Example query:
+**Example query:**
 
+```shell
 kubelet_http_requests_total
+```
 
 Click Execute
 
-**You can also visualize your metrics by clicking the Graph tab**
+#### **You can also visualize your metrics by clicking the Graph tab**
 
-![A screen shot of a computer AI-generated content may be
-incorrect.](media/image45.png){width="7.5in" height="4.21875in"}
+![Image41](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image41.png)
 
-#  {#section-3 .unnumbered}
+## **Step 13: Installation and Configuration of Grafana**
 
-## **Step 13: Installation and Configuration of Grafana** {#step-13-installation-and-configuration-of-grafana .unnumbered}
-
-**Grafana** is an open-source platform used for monitoring,
-visualization, and data analysis. It allows you to query, visualize, and
-understand your metrics from various data sources in real-time through
-customizable dashboards.
+**Grafana** is an open-source platform used for monitoring, visualization, and data analysis. It allows you to query, visualize, and understand your metrics from various data sources in real-time through customizable dashboards.
 
 **Common Use Cases:**
 
-- **Kubernetes Monitoring:** Visualize CPU, memory, and network usage
-  across clusters.
+- **Kubernetes Monitoring:** Visualize CPU, memory, and network usage across clusters.
 
-- **Application Performance Monitoring (APM):** Track application
-  metrics and log data.
+- **Application Performance Monitoring (APM):** Track application metrics and log data.
 
-- **Infrastructure Monitoring:** Monitor server health, disk usage, and
-  network traffic.
+- **Infrastructure Monitoring:** Monitor server health, disk usage, and network traffic.
 
-- **Business Metrics:** Display business KPIs like sales data,
-  transaction counts, etc.
+- **Business Metrics:** Display business KPIs like sales data, transaction counts, etc.
 
-**Grafana** is a robust open-source platform used for monitoring,
-visualization, and analysis of metrics from various data sources,
-including **Prometheus**.
+**Grafana** is a robust open-source platform used for monitoring, visualization, and analysis of metrics from various data sources, including **Prometheus**.
 
-**The following steps outline the process for installing and configuring
-Grafana in a Kubernetes cluster using Helm.**
+**The following steps outline the process for installing and configuring Grafana in a Kubernetes cluster using Helm.**
 
-1.  **Add the Grafana Repository to Helm Configuration:**
+### 1.  **Add the Grafana Repository to Helm Configuration:**
 
-First, we need to add the official Grafana repository to our Helm
-configuration. This repository contains the Helm charts necessary to
-deploy Grafana.
+First, we need to add the official Grafana repository to our Helm configuration. This repository contains the Helm charts necessary to deploy Grafana.
 
 Run the following commands:
 
-helm repo add grafana <https://grafana.github.io/helm-charts>
+```shell
+helm repo add grafana https://grafana.github.io/helm-charts
+```
 
+```shell
 helm repo update
+```
 
-![A black screen with white text AI-generated content may be
-incorrect.](media/image46.png){width="7.5in"
-height="1.3569444444444445in"}
+![Image42](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image42.png)
 
 ### **Create a Grafana Values File:**
 
-We need to create a grafana.yml file to customize our Grafana
-deployment. This file will contain values that Helm will use to
+We need to create a grafana.yml file to customize our Grafana deployment. This file will contain values that Helm will use to
 configure the deployment.
 
-Run:
+Craete grafana.yml file by running following command
 
+```shell
 vi grafana.yml
+```
 
-insert following
+**insert following**
 
+```yml
 adminUser: admin
-
 adminPassword: YUDevOps
-
 service:
-
-  type: NodePort
-
-  port: 3000
+  type: NodePort
+  port: 3000
+```
 
 ### **Install Grafana Using the Provided Helm Chart:**
 
 Now, we use Helm to deploy Grafana using the values file we created:
 
+```shell
 helm install -f grafana.yml grafana grafana/grafana
+```
 
 - **-f grafana.yml**: Specifies the custom configuration file.
 
@@ -980,126 +963,117 @@ helm install -f grafana.yml grafana grafana/grafana
 
 - **grafana/grafana**: The Helm chart we are using.
 
-After running the command, check the status of the pods to ensure
-Grafana is running:
+After running the command, check the status of the pods to ensure Grafana is running:
 
-![A screenshot of a computer program AI-generated content may be
-incorrect.](media/image47.png){width="7.5in" height="3.4in"}
+![Image43](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image43.png)
 
+```shell
 kubectl get pods
+```
 
 you see grafana pod is running
 
-![A screen shot of a computer AI-generated content may be
-incorrect.](media/image48.png){width="7.5in" height="2.1375in"}
+![Image44](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image44.png)
 
 ### **Expose Grafana Using NodePort Service:**
 
-By default, the Grafana service is only accessible within the Kubernetes
-cluster. To access it externally, we expose it using a NodePort service.
+By default, the Grafana service is only accessible within the Kubernetes cluster. To access it externally, we expose it using a NodePort service.
 
 Run the command:
 
-kubectl expose service grafana \--type=NodePort \--target-port=3000
-\--name=grafana-np
+```shell
+kubectl expose service grafana --type=NodePort --target-port=3000 --name=grafana-np
+```
 
-*Verify the service and note the NodePort assigned by runnig following
-command*
+*Verify the service and note the NodePort assigned by runnig following command:*
 
 kubectl get svc
 
-![A screen shot of a computer AI-generated content may be
-incorrect.](media/image49.png){width="7.5in"
-height="2.1993055555555556in"}
+![Image45](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image45.png)
 
 ### **Access Grafana:**
 
 Now, open a browser and navigate to:
 
-\<Public IP\>:\<NodePort\>
+**Format:**
 
-Ex: **<http://54.227.118.240:1189/login> \-- Master Node**
+<Public IP\>:<NodePort\>
+
+Example:
+
+```shell
+http://54.227.118.240:1189/login #Master Node
+```
 
 **Access Grafana**
 
-> Username: **admin**
->
-> Password: **YUDevOps**
+**Username:** admin
+**Password:** YUDevOps
 
-![A screenshot of a computer AI-generated content may be
-incorrect.](media/image50.png){width="7.5in" height="4.21875in"}
+![Image46](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image46.png)
 
-**You will also see that grafana also running on worker node**
+#### **You will also see that grafana also running on worker node**
 
-**<http://52.204.114.58:1189/login> \-\-- Worker Node1**
+```shell
+http://52.204.114.58:1189/login #Worker Node1
+```
 
-[**http://**
-**54.165.83.46:1189/login**](http://54.227.118.240:1189/login) **\-\--
-Worker Node0**
+```shell
+http://54.165.83.46:1189/login  #Worker Node0
+```
 
-![Screens screenshot of a computer AI-generated content may be
-incorrect.](media/image51.png){width="7.5in" height="4.21875in"}
+![Image47](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image47.png)
 
-**Login using the default credentials:**
+#### **Login using the default credentials:**
 
-- **Username:** admin
+**Username:** admin
+**Password:** YUDevOps
 
-- **Password:** YUDevOps
-
-![A screenshot of a computer AI-generated content may be
-incorrect.](media/image52.png){width="7.5in" height="4.21875in"}
+![Image48](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image48.png)
 
 ### **Configure Data Source:**
 
-Grafana needs a data source to visualize metrics. We will use Prometheus
-as our data source.
+Grafana needs a data source to visualize metrics. We will use Prometheus as our data source.
 
-1.  Click on the **Connnection** icon in the left sidebar.
+#### 1.  Click on the **Connnection** icon in the left sidebar.
 
-2.  Select **Data Sources** \> **Add data source**.
+#### 2.  Select **Data Sources** \> **Add data source**.
 
-3.  Select **Prometheus**.
+#### 3.  Select **Prometheus**.
 
 In the URL field, enter the following address:
 
-<http://prometheus-server.default.svc.cluster.local>
+```shell
+http://prometheus-server.default.svc.cluster.local
+```
 
 Click **Save & Test** to verify the connection.
 
-![A screenshot of a computer AI-generated content may be
-incorrect.](media/image53.png){width="7.5in" height="4.21875in"}
+![Image49](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image49.png)
 
-The address http://prometheus-server.default.svc.cluster.local is the
-**internal DNS address** of the Prometheus service within the Kubernetes
-cluster. This address is automatically generated by Kubernetes when a
-service is created. Let\'s break down how to get this address.
+The address http://prometheus-server.default.svc.cluster.local is the **internal DNS address** of the Prometheus service within the Kubernetes cluster. This address is automatically generated by Kubernetes when a service is created. Let\'s break down how to get this address.
 
 - **service-name** -- The name of the service.
 
-- **namespace** -- The namespace where the service is running (e.g.,
-  default).
+- **namespace** -- The namespace where the service is running (e.g., default).
 
 - **svc** -- A subdomain used for services.
 
-- **cluster.local** -- The default cluster domain. This can vary if
-  custom DNS settings are configured.
+- **cluster.local** -- The default cluster domain. This can vary if custom DNS settings are configured.
 
 ### **Import Grafana Dashboards:**
 
-Grafana supports pre-built dashboards that can be imported using their
-unique IDs.
+Grafana supports pre-built dashboards that can be imported using their unique IDs.
 
 **Import Dashboard ID 10000:**
 
-1.  Click the **Create** icon \> **Import**.
+1. Click the **Create** icon \> **Import**
 
-2.  Enter **10000** in the Import via ID field and click **Load**.
+2. Enter **10000** in the Import via ID field and click **Load**
 
-3.  Select **Prometheus** from the data source dropdown and click
-    **Import**.
+3. Select **Prometheus** from the data source dropdown and click **Import**
 
-![A screenshot of a computer AI-generated content may be
-incorrect.](media/image54.png){width="7.5in" height="4.21875in"}
+![Image50](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image50.png)
 
 **Import Dashboard ID 13770:**
 
@@ -1107,28 +1081,26 @@ Repeat the above steps with **ID 13770**.
 
 Now, you will see two dashboards populated with Prometheus metrics.
 
-![A screenshot of a computer AI-generated content may be
-incorrect.](media/image55.png){width="7.5in" height="4.21875in"}
+![Image51](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image51.png)
 
 **Get All Resources in the Current Namespace:**
 
+```shell
 kubectl get all
+```
 
-![A computer screen shot of a black screen AI-generated content may be
-incorrect.](media/image56.png){width="7.5in" height="4.21875in"}
+![Image52](https://github.com/gurpreet2828/Terraform-Kubernetes-Monitoring/blob/17a95c04959781136e71332bdc96f9c1a2659c0e/Images/Image52.png)
 
-##  {#section-4 .unnumbered}
+## **Step 14: Destroy Terraform Resources:**
 
-## **Step 14: Destroy Terraform Resources:** {#step-14-destroy-terraform-resources .unnumbered}
-
-Once you are done with the lab, it\'s crucial to clean up the
-provisioned infrastructure to avoid unnecessary costs.
+Once you are done with the lab, it\'s crucial to clean up the provisioned infrastructure to avoid unnecessary costs.
 
 Run the command:
 
+```shell
 terraform destroy
+```
 
-- Terraform will list all the resources it will destroy and prompt for
-  confirmation.
+- Terraform will list all the resources it will destroy and prompt for confirmation.
 
 - Type yes to proceed with the destruction.
